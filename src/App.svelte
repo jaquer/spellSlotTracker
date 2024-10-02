@@ -104,7 +104,7 @@
     background-color: white;
   }
   .green {
-    background-color: green;
+    background-color: #40C9A2;
   }
   .flex {
     display: flex;
