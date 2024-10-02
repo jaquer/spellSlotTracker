@@ -38,26 +38,35 @@
     <!--   bind:value={charLevel} -->
     <!-- /> -->
   </div>
-<section>
-  {#each spellTable[charLevel ? charLevel - 1 : 0] as numSlots, level_i}
-    <div class="flex">
-      <h2>{level_i + 1}</h2>
-      <button
-        on:click={() => (deltas[level_i] >= -numSlots ? deltas[level_i]-- : 0)}
-        >-</button
-      >
-      {#each Array(numSlots + Math.max(0, deltas[level_i])) as _, slot_i}
-        <div class={calculateBoxColor(numSlots, level_i, slot_i, deltas)}></div>
-      {/each}
-      <button on:click={() => deltas[level_i]++}>+</button>
-    </div>
-  {/each}
+  <section>
+    {#each spellTable[charLevel ? charLevel - 1 : 0] as numSlots, level_i}
+      <div class="flex">
+        <h2>{level_i + 1}</h2>
+        <button
+          on:click={() =>
+            deltas[level_i] >= -numSlots ? deltas[level_i]-- : 0}>-</button
+        >
+        {#each Array(numSlots + Math.max(0, deltas[level_i])) as _, slot_i}
+          <div
+            class={calculateBoxColor(numSlots, level_i, slot_i, deltas)}
+          ></div>
+        {/each}
+        <button on:click={() => deltas[level_i]++}>+</button>
+      </div>
+    {/each}
   </section>
 
   <section>
     {#each onePDays as spell}
       <div class="flex">
-        <input class="box field" type="text" bind:value={spell.name} />
+        <input
+          class="box field"
+          type="text"
+          bind:value={spell.name}
+          on:blur={() => {
+              onePDays = onePDays.filter((val, _) => val.name != "");
+          }}
+        />
         <button
           class={spell.state ? "box white" : "box"}
           on:click={() => (spell.state = !spell.state)}
@@ -86,7 +95,7 @@
   .field {
     width: 200px;
     text-decoration: none;
-    padding: 4px ;
+    padding: 4px;
     padding-left: 12px;
     padding-right: 8px;
     border: none;
@@ -96,7 +105,7 @@
     border-radius: 8px;
     margin-left: 0;
   }
-  .field:focus{
+  .field:focus {
     box-shadow: none;
     text-decoration: none;
   }
@@ -104,7 +113,7 @@
     background-color: white;
   }
   .green {
-    background-color: #40C9A2;
+    background-color: #40c9a2;
   }
   .flex {
     display: flex;
