@@ -1,13 +1,25 @@
 <script lang="ts">
   import spellTable from "./lib/spellTable.json";
-  console.log(spellTable);
-  let charLevel: number = 1;
 
-  let deltas: Array<number>;
-  $: deltas = Array(spellTable[charLevel ? charLevel - 1 : 0].length).fill(0);
 
-  let onePDays: Array<{ name: String; state: boolean }> = [];
-  $: console.log(onePDays.length);
+  let cd : {
+    "level" : number,
+    "deltas" : Array<number>,
+    "onePerDays" : Array<{ name: String, state: boolean}>
+  } 
+
+  const savedData = localStorage.getItem("characterData")
+
+  if (savedData == null)
+  cd = {
+    "level" : 1,
+    "deltas" : [],
+    "onePerDays" : []
+  }
+  else
+    cd = JSON.parse(savedData)
+
+  $: cd.deltas = Array(spellTable[cd.level ? cd.level - 1 : 0].length).fill(0)
 
   function calculateBoxColor(
     numSlots: number,
@@ -19,52 +31,67 @@
     if (slotIndex < numSlots + deltas[level]) return "box white";
     return "box";
   }
+
+  function incrementSlot(
+    spellLevelIndex: number,
+    numSlots: number,
+    decrement: boolean = false,
+  ) : void {
+    if(decrement)
+      cd.deltas[spellLevelIndex] >= -numSlots ? cd.deltas[spellLevelIndex]-- : 0
+    else
+      cd.deltas[spellLevelIndex]++
+  }
+
+  function save(){
+    localStorage.setItem(
+      "characterData", 
+      JSON.stringify(cd)
+    )
+  }
 </script>
 
 <main>
   <h1>Spell Slots</h1>
+  <!--level selector-->
   <div class="flex">
     <input
-      class="box field"
+      class="box field ml59"
       type="number"
       min="1"
       max={spellTable.length}
-      bind:value={charLevel}
+      bind:value={cd.level}
     />
-    <!-- <input -->
-    <!--   type="range" -->
-    <!--   min="0" -->
-    <!--   max={spellTable.length - 1} -->
-    <!--   bind:value={charLevel} -->
-    <!-- /> -->
   </div>
+
+  <!-- spell slots -->
   <section>
-    {#each spellTable[charLevel ? charLevel - 1 : 0] as numSlots, level_i}
+    {#each spellTable[cd.level ? cd.level - 1 : 0] as numSlots, spellLevelIndex}
       <div class="flex">
-        <h2>{level_i + 1}</h2>
+        <h2>{spellLevelIndex + 1}</h2>
         <button
-          on:click={() =>
-            deltas[level_i] >= -numSlots ? deltas[level_i]-- : 0}>-</button
-        >
-        {#each Array(numSlots + Math.max(0, deltas[level_i])) as _, slot_i}
+          on:click={() => incrementSlot(spellLevelIndex, numSlots, true)}>-</button>
+          <!-- calculates white boxes -->
+        {#each Array(numSlots + Math.max(0, cd.deltas[spellLevelIndex])) as _, slotLevelIndex}
           <div
-            class={calculateBoxColor(numSlots, level_i, slot_i, deltas)}
+            class={calculateBoxColor(numSlots, spellLevelIndex, slotLevelIndex, cd.deltas)}
           ></div>
         {/each}
-        <button on:click={() => deltas[level_i]++}>+</button>
+        <button on:click={() => incrementSlot(spellLevelIndex, numSlots, true)}>+</button>
       </div>
     {/each}
   </section>
 
+  <!-- once per days -->
   <section>
-    {#each onePDays as spell}
+    {#each cd.onePerDays as spell}
       <div class="flex">
         <input
           class="box field"
           type="text"
           bind:value={spell.name}
           on:blur={() => {
-              onePDays = onePDays.filter((val, _) => val.name != "");
+              cd.onePerDays = cd.onePerDays.filter((val, _) => val.name != "");
           }}
         />
         <button
@@ -74,9 +101,10 @@
       </div>
     {/each}
     <button
+      class="ml59"
       on:click={() => {
-        onePDays.push({ name: "Spell", state: true });
-        onePDays = onePDays;
+        cd.onePerDays.push({ name: "Spell", state: true });
+        cd.onePerDays = cd.onePerDays;
       }}>Add a once-per-day</button
     >
   </section>
@@ -103,7 +131,6 @@
     box-shadow: none;
     outline: none;
     border-radius: 8px;
-    margin-left: 0;
   }
   .field:focus {
     box-shadow: none;
@@ -121,5 +148,8 @@
   }
   section {
     margin: 30px 0px;
+  }
+  .ml59{
+    margin-left: 59px;
   }
 </style>
