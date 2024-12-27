@@ -5,6 +5,7 @@
     "level" : number,
     "deltas" : Array<number>,
     "onePerDays" : Array<{ name: String, state: boolean}>
+    "sps": number,
   } 
 
   const savedData = localStorage.getItem("characterData")
@@ -13,7 +14,8 @@
     cd = {
       "level" : 1,
       "deltas" : [0],
-      "onePerDays" : []
+      "onePerDays" : [],
+      "sps" : 0,
     }
   else
     cd = JSON.parse(savedData)
@@ -44,6 +46,13 @@
     save()
   }
 
+  function incrementSp(decrement:boolean = false) : void {
+    cd.sps += decrement ? -1 : 1;
+    cd.sps = Math.max(cd.sps, 0);
+    console.log(cd.sps);
+    save()
+  }
+
   function save(){
     localStorage.setItem(
       "characterData", 
@@ -61,12 +70,12 @@
       type="number"
       min="1"
       max={spellTable.length}
-      on:input={e=>{
-        const v = e.target.value
-        console.log(cd.level)
-        cd.deltas = Array(spellTable[v ? v - 1 : 0].length).fill(0);
-        cd.level = v
-      }
+      on:input= { e => {
+          const v = e.target.value
+          console.log(cd.level)
+          cd.deltas = Array(spellTable[v ? v - 1 : 1].length).fill(0);
+          cd.level = v ? v : 1
+        }
       }
     />
   </div>
@@ -117,6 +126,21 @@
       }}>Add a once-per-day</button
     >
   </section>
+
+  <section>
+      <div class="flex">
+        <h2>SP</h2>
+        <button
+          on:click={() => incrementSp(true)}>-</button>
+          <!-- calculates white boxes -->
+        {#each Array(cd.sps).fill(0) as _ }
+          <div
+            class="box white"
+          ></div>
+        {/each}
+        <button on:click={() => incrementSp()}>+</button>
+      </div>
+  </section>
 </main>
 
 <style>
@@ -130,7 +154,7 @@
     margin: 10px;
   }
   .field {
-    width: 200px;
+    min-width: 200px;
     text-decoration: none;
     padding: 4px;
     padding-left: 12px;
