@@ -37,13 +37,16 @@
     numSlots: number,
     decrement: boolean = false,
   ) : void {
+
     console.log("incrementing")
+
     if(decrement)
       cd.deltas[spellLevelIndex] >= -numSlots ? cd.deltas[spellLevelIndex]-- : 0
     else{
       cd.deltas[spellLevelIndex] += 1
       console.log("adding")
     }
+
     save()
   }
 
@@ -66,9 +69,8 @@
   <h1>Spell Slots</h1>
   <!--level selector-->
   <section class="flex">
-    <div>
     <input
-      class="box field"
+      class="box field m0a"
       type="number"
       min="1"
       max={spellTable.length}
@@ -80,7 +82,6 @@
         }
       }
     />
-    </div>
   </section>
 
   <!-- spell slots -->
@@ -125,6 +126,7 @@
         ></button>
       </div>
     {/each}
+    </div>
     <button
       class="m0a"
       on:click={() => {
@@ -133,7 +135,6 @@
         save()
       }}>Add a once-per-day</button
     >
-    </div>
   </section>
 
   <section>
@@ -194,8 +195,8 @@
   }
   section {
     display: flex;
-    justify-content: center;
-        margin-bottom: 30px;
+    margin-bottom: 30px;
+    min-width: 338.08px;
   }
   .ml59{
     margin-left: 59px;
