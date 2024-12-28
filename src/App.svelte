@@ -20,6 +20,7 @@
   else
     cd = JSON.parse(savedData)
 
+
   function calculateBoxColor(
     numSlots: number,
     level: number,
@@ -64,9 +65,10 @@
 <main>
   <h1>Spell Slots</h1>
   <!--level selector-->
-  <div class="flex">
+  <section class="flex">
+    <div>
     <input
-      class="box field ml59"
+      class="box field"
       type="number"
       min="1"
       max={spellTable.length}
@@ -78,28 +80,34 @@
         }
       }
     />
-  </div>
+    </div>
+  </section>
 
   <!-- spell slots -->
   <section>
+    <div>
     {#each spellTable[cd.level - 1] as numSlots, spellLevelIndex}
       <div class="flex">
         <h2>{spellLevelIndex + 1}</h2>
         <button
           on:click={() =>incrementSlot(spellLevelIndex, numSlots, true)}>-</button>
           <!-- calculates white boxes -->
+          <div class="flex wrap">
         {#each Array(numSlots + Math.max(0, cd.deltas[spellLevelIndex])) as _, slotLevelIndex}
           <div
             class={calculateBoxColor(numSlots, spellLevelIndex, slotLevelIndex, cd.deltas)}
           ></div>
         {/each}
+      </div>
         <button on:click={() => incrementSlot(spellLevelIndex, numSlots)}>+</button>
       </div>
     {/each}
+    </div>
   </section>
 
   <!-- once per days -->
   <section>
+    <div>
     {#each cd.onePerDays as spell}
       <div class="flex">
         <input
@@ -118,32 +126,37 @@
       </div>
     {/each}
     <button
-      class="ml59"
+      class="m0a"
       on:click={() => {
         cd.onePerDays.push({ name: "Spell", state: true });
         cd.onePerDays = cd.onePerDays;
         save()
       }}>Add a once-per-day</button
     >
+    </div>
   </section>
 
   <section>
       <div class="flex">
-        <h2>SP</h2>
+        <h2 class="sp-offset">SP</h2>
         <button
           on:click={() => incrementSp(true)}>-</button>
           <!-- calculates white boxes -->
+        <div class="flex wrap">
         {#each Array(cd.sps).fill(0) as _ }
           <div
             class="box white"
           ></div>
         {/each}
+        </div>
         <button on:click={() => incrementSp()}>+</button>
       </div>
   </section>
 </main>
 
 <style>
+  h2{
+    width: 20px;}
   .box {
     width: 25px;
     height: 25px;
@@ -180,9 +193,26 @@
     align-items: center;
   }
   section {
-    margin: 30px 0px;
+    display: flex;
+    justify-content: center;
+        margin-bottom: 30px;
   }
   .ml59{
     margin-left: 59px;
+  }
+  section{
+    max-width: 100vw;
+  }
+  .wrap{
+    flex-wrap: wrap;
+    max-width: 180px;
+  }
+  .sp-offset{
+    position: relative;
+    transform: translateX(-20px);
+  }
+  .m0a{
+    display: block;
+    margin: 0 auto;
   }
 </style>
