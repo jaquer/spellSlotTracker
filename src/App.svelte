@@ -1,7 +1,11 @@
 <script lang="ts">
   // the spells each level caster gets as a json file
   import spellTable from "./lib/spellTable.json";
+  import spConversionTable from "./lib/spConversionTable.json";
   import { onMount } from "svelte";
+  import "drag-drop-touch";
+
+  let hoverTarget: number = $state(-1);
 
   // character data stored as an object
   let cd: {
@@ -9,24 +13,22 @@
     deltas: Array<number>;
     onePerDays: Array<{ name: String; state: boolean }>;
     sps: number;
-  };
+  } = $state({
+    level: 1,
+    deltas: [0],
+    onePerDays: [],
+    sps: 0,
+  });
 
   // if the user has used this site before, grab the data
   const savedData = localStorage.getItem("characterData");
 
   // if the user has local data, parse it to cd. otherwise, make a new player.
-  if (savedData == null)
-    cd = {
-      level: 1,
-      deltas: [0],
-      onePerDays: [],
-      sps: 0,
-    };
-  else cd = JSON.parse(savedData);
+  if (savedData != null) cd = JSON.parse(savedData);
 
-  var levelPicker : HTMLElement;
+  var levelPicker: HTMLInputElement;
   onMount(() => {
-    levelPicker.value = cd.level;
+    levelPicker.value = cd.level.toString();
   });
 
   // spell slot box color. takes in spell info, and returns html classes
@@ -43,33 +45,91 @@
 
   // increments, or decrements the current slot
   // numSlots makes sure that the slots dont go into the negative
-  function incrementSpellSlot(
-    spellLevelIndex: number,
-    numSlots: number,
-    decrement: boolean = false,
-  ): void {
-    if (decrement)
-      cd.deltas[spellLevelIndex] > -numSlots ? cd.deltas[spellLevelIndex]-- : 0;
-    else {
-      cd.deltas[spellLevelIndex] += 1;
-    }
+  function incrementSpellSlot(spellLevelIndex: number, ammt: number = 1, s: boolean=true): void {
+    let numSlots = spellTable[cd.level-1][spellLevelIndex];
+    cd.deltas[spellLevelIndex] += ammt;
 
-    save();
+    if (cd.deltas[spellLevelIndex] + numSlots < 0)
+      cd.deltas[spellLevelIndex] = -numSlots;
+
+    if(s) save();
   }
 
-  function incrementSp(decrement: boolean = false): void {
-    cd.sps += decrement ? -1 : 1;
+  function incrementSp(ammt: number, s: boolean=true): void {
+    cd.sps += ammt;
     cd.sps = Math.max(cd.sps, 0);
-    save();
+    if(s) save();
   }
 
-  function upDateSpellLevel(e: Event) {
+  function upDateSpellLevel(e: any): void {
     const v = e.target.value;
     cd.deltas = Array(spellTable[v ? v - 1 : 1].length)
       .fill(0)
       .map((_, i) => (i < cd.deltas.length ? cd.deltas[i] : 0));
     cd.level = v ? v : 1;
     save();
+  }
+
+  function draggable(node: HTMLElement, level: number=-1) {
+    node.draggable = true;
+    node.style.cursor = "grab";
+
+    function handleGrab(e: any) {
+      e.dataTransfer.setData("text/plain", level);
+    }
+    function handleGrabEnd(e: any) {
+      hoverTarget = -1;
+    }
+    $effect(() => {
+      node.addEventListener("dragstart", handleGrab);
+      node.addEventListener("dragend", handleGrabEnd);
+
+      return () => {
+        node.removeEventListener("dragstart", handleGrab);
+        node.addEventListener("dragend", handleGrabEnd);
+      };
+    });
+  }
+
+  function dropzone(node: HTMLElement, dropLevel: number = -1) {
+    function handleDrop(e: any) {
+
+      const dragLevel = Number(e.dataTransfer.getData("text/plain", dropLevel));
+
+      // check if the spell is under 6th level
+      if(dragLevel > 4 || dropLevel > 4) return;
+
+      if (dropLevel == -1 && dragLevel > -1) {
+        if(spellTable[cd.level-1][dragLevel] + cd.deltas[dragLevel] < 1) return;
+        incrementSpellSlot(dragLevel, -1);
+        incrementSp(spConversionTable[dragLevel]);
+
+      } else if(dropLevel > -1 && dragLevel == -1){
+        if(cd.sps < spConversionTable[dropLevel]) return;
+        incrementSp(-spConversionTable[dropLevel])
+        incrementSpellSlot(dropLevel, 1);
+
+      }
+    }
+    function handleDragEnter(e: any) {
+      hoverTarget = dropLevel + 1;
+    }
+    function handleDragOver(e:any) {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = "move";
+    }
+    $effect(() => {
+      node.addEventListener("dragstart", handleDrop);
+      node.addEventListener("dragenter", handleDragEnter);
+      node.addEventListener("drop", handleDrop);
+      node.addEventListener("dragover", handleDragOver);
+
+      return () => {
+        node.removeEventListener("dragstart", handleDrop);
+        node.removeEventListener("dragenter", handleDragEnter);
+        node.removeEventListener("dragover", handleDragOver);
+      };
+    });
   }
 
   function save() {
@@ -87,7 +147,7 @@
       type="number"
       min="1"
       max={spellTable.length}
-      on:input={(e) => upDateSpellLevel(e)}
+      oninput={(e) => upDateSpellLevel(e)}
     />
   </section>
 
@@ -95,10 +155,13 @@
   <section>
     <div>
       {#each spellTable[cd.level - 1] as numSlots, spellLevelIndex}
-        <div class="flex">
+        <div
+          class={"flex fade spellRow " +
+            (hoverTarget === spellLevelIndex + 1 ? "droppable" : "dropping")}
+          use:dropzone={spellLevelIndex}
+        >
           <h2>{spellLevelIndex + 1}</h2>
-          <button
-            on:click={() => incrementSpellSlot(spellLevelIndex, numSlots, true)}
+          <button onclick={() => incrementSpellSlot(spellLevelIndex, -1)}
             >-</button
           >
           <!-- calculates white boxes -->
@@ -111,12 +174,11 @@
                   slotLevelIndex,
                   cd.deltas,
                 )}
+                use:draggable={spellLevelIndex}
               ></div>
             {/each}
           </div>
-          <button on:click={() => incrementSpellSlot(spellLevelIndex, numSlots)}
-            >+</button
-          >
+          <button onclick={() => incrementSpellSlot(spellLevelIndex)}>+</button>
         </div>
       {/each}
     </div>
@@ -124,16 +186,19 @@
 
   <!-- sorcery points -->
   <section>
-    <div class="flex">
+    <div
+      class={"flex fade " + (hoverTarget === 0 ? "droppable" : "dropping")}
+      use:dropzone
+    >
       <h2 class="sp-offset">SP</h2>
-      <button on:click={() => incrementSp(true)}>-</button>
+      <button onclick={() => incrementSp(-1)}>-</button>
       <!-- calculates white boxes -->
       <div class="flex wrap">
         {#each Array(cd.sps).fill(0) as _}
-          <div class="box white"></div>
+          <div class="box white" use:draggable></div>
         {/each}
       </div>
-      <button on:click={() => incrementSp()}>+</button>
+      <button onclick={() => incrementSp(1)}>+</button>
     </div>
   </section>
 </main>
@@ -147,14 +212,14 @@
           class="box field"
           type="text"
           bind:value={spell.name}
-          on:blur={() => {
-            cd.onePerDays = cd.onePerDays.filter(val => val.name != "");
+          onblur={() => {
+            cd.onePerDays = cd.onePerDays.filter((val) => val.name != "");
             save();
           }}
         />
         <button
           class={spell.state ? "box white" : "box"}
-          on:click={() => {
+          onclick={() => {
             spell.state = !spell.state;
             save();
           }}
@@ -164,7 +229,7 @@
   </div>
   <button
     class="m0a"
-    on:click={() => {
+    onclick={() => {
       cd.onePerDays.push({ name: "Spell", state: true });
       cd.onePerDays = cd.onePerDays;
       save();
@@ -195,7 +260,7 @@
     font-size: 1em;
     box-shadow: none;
     outline: none;
-    border-radius: 8px;
+    border-radius: 10px;
   }
   .field:focus {
     box-shadow: none;
@@ -234,5 +299,19 @@
   .m0a {
     display: block;
     margin: 0 auto;
+  }
+  *:global(.droppable *) {
+    pointer-events: none;
+  }
+  .droppable {
+    border: 0.2em solid #40c9a2;
+  }
+  .dropping {
+    border: 0.2em solid #00000000;
+  }
+  .fade {
+    border-radius: 10px;
+    transition: 300ms;
+    padding: 0 10px;
   }
 </style>
