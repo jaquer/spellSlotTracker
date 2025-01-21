@@ -4,6 +4,7 @@
   import spConversionTable from "./lib/spConversionTable.json";
   import { onMount } from "svelte";
   import "drag-drop-touch";
+  import { fly } from "svelte/transition";
 
   let hoverTarget: number = $state(-1);
 
@@ -45,20 +46,24 @@
 
   // increments, or decrements the current slot
   // numSlots makes sure that the slots dont go into the negative
-  function incrementSpellSlot(spellLevelIndex: number, ammt: number = 1, s: boolean=true): void {
-    let numSlots = spellTable[cd.level-1][spellLevelIndex];
+  function incrementSpellSlot(
+    spellLevelIndex: number,
+    ammt: number = 1,
+    s: boolean = true,
+  ): void {
+    let numSlots = spellTable[cd.level - 1][spellLevelIndex];
     cd.deltas[spellLevelIndex] += ammt;
 
     if (cd.deltas[spellLevelIndex] + numSlots < 0)
       cd.deltas[spellLevelIndex] = -numSlots;
 
-    if(s) save();
+    if (s) save();
   }
 
-  function incrementSp(ammt: number, s: boolean=true): void {
+  function incrementSp(ammt: number, s: boolean = true): void {
     cd.sps += ammt;
     cd.sps = Math.max(cd.sps, 0);
-    if(s) save();
+    if (s) save();
   }
 
   function upDateSpellLevel(e: any): void {
@@ -70,7 +75,7 @@
     save();
   }
 
-  function draggable(node: HTMLElement, level: number=-1) {
+  function draggable(node: HTMLElement, level: number = -1) {
     node.draggable = true;
     node.style.cursor = "grab";
 
@@ -93,28 +98,26 @@
 
   function dropzone(node: HTMLElement, dropLevel: number = -1) {
     function handleDrop(e: any) {
-
       const dragLevel = Number(e.dataTransfer.getData("text/plain", dropLevel));
 
       // check if the spell is under 6th level
-      if(dragLevel > 4 || dropLevel > 4) return;
+      if (dragLevel > 4 || dropLevel > 4) return;
 
       if (dropLevel == -1 && dragLevel > -1) {
-        if(spellTable[cd.level-1][dragLevel] + cd.deltas[dragLevel] < 1) return;
+        if (spellTable[cd.level - 1][dragLevel] + cd.deltas[dragLevel] < 1)
+          return;
         incrementSpellSlot(dragLevel, -1);
         incrementSp(spConversionTable[dragLevel]);
-
-      } else if(dropLevel > -1 && dragLevel == -1){
-        if(cd.sps < spConversionTable[dropLevel]) return;
-        incrementSp(-spConversionTable[dropLevel])
+      } else if (dropLevel > -1 && dragLevel == -1) {
+        if (cd.sps < spConversionTable[dropLevel]) return;
+        incrementSp(-spConversionTable[dropLevel]);
         incrementSpellSlot(dropLevel, 1);
-
       }
     }
     function handleDragEnter(e: any) {
       hoverTarget = dropLevel + 1;
     }
-    function handleDragOver(e:any) {
+    function handleDragOver(e: any) {
       e.preventDefault();
       e.dataTransfer.dropEffect = "move";
     }
@@ -175,10 +178,14 @@
                   cd.deltas,
                 )}
                 use:draggable={spellLevelIndex}
+                transition:fly={{ duration: 100, x: -10 }}
               ></div>
             {/each}
           </div>
-          <button onclick={() => incrementSpellSlot(spellLevelIndex)}>+</button>
+          <button
+            onclick={() => incrementSpellSlot(spellLevelIndex)}
+            transition:fly={{ duration: 100, x: -10 }}>+</button
+          >
         </div>
       {/each}
     </div>
@@ -191,14 +198,24 @@
       use:dropzone
     >
       <h2 class="sp-offset">SP</h2>
-      <button onclick={() => incrementSp(-1)}>-</button>
+      <button
+        onclick={() => incrementSp(-1)}
+        transition:fly={{ duration: 100, x: -10 }}>-</button
+      >
       <!-- calculates white boxes -->
       <div class="flex wrap">
         {#each Array(cd.sps).fill(0) as _}
-          <div class="box white" use:draggable></div>
+          <div
+            class="box white"
+            use:draggable
+            transition:fly={{ duration: 100, x: -10 }}
+          ></div>
         {/each}
       </div>
-      <button onclick={() => incrementSp(1)}>+</button>
+      <button
+        onclick={() => incrementSp(1)}
+        transition:fly={{ duration: 100, x: -10 }}>+</button
+      >
     </div>
   </section>
 </main>
@@ -207,7 +224,7 @@
 <section>
   <div class="m0a">
     {#each cd.onePerDays as spell}
-      <div class="flex">
+      <div class="flex" transition:fly={{ duration: 100, y: -10 }}>
         <input
           class="box field"
           type="text"
@@ -249,6 +266,7 @@
     border-radius: 3px;
     padding: 0;
     margin: 10px;
+    transition: background-color 100ms;
   }
   .field {
     min-width: 200px;
