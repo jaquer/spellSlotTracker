@@ -22,6 +22,8 @@
     sps: 0,
     health: 1,
     maxHealth: 1,
+    showSpells: true,
+    showSps: false,
   });
 
   // if the user has used this site before, grab the data
@@ -29,14 +31,14 @@
 
   // if the user has local data, parse it to cd. otherwise, make a new player.
   if (savedData !== null) {
-  const parsedData = JSON.parse(savedData);
-  for (const key in parsedData) {
-    if (cd.hasOwnProperty(key)) {
-      cd[key as keyof PlayerData] = parsedData[key];
+    const parsedData : PlayerData = JSON.parse(savedData);
+    for (const key in parsedData) {
+      if (cd.hasOwnProperty(key)) {
+        const typedkey = key as keyof PlayerData
+        cd[typedkey] = parsedData[typedkey];
+      }
     }
   }
-}
-
 
   // spell slot box color. takes in spell info, and returns html classes
   function calculateBoxColor(
@@ -138,74 +140,76 @@
 </script>
 
 <main>
-  <Settings bind:playerData={cd} {spellTable} {save}/>
   <Health bind:playerData={cd} onSave={save} />
 
-  <!-- spell slots -->
-  <h1>Spell Slots</h1>
-  <section>
-    <div>
-      {#each spellTable[cd.level - 1] as numSlots, spellLevelIndex}
-        <div
-          class={"flex fade spellRow " +
-            (hoverTarget === spellLevelIndex + 1 ? "droppable" : "dropping")}
-          use:dropzone={spellLevelIndex}
-        >
-          <h2>{spellLevelIndex + 1}</h2>
-          <button onclick={() => incrementSpellSlot(spellLevelIndex, -1)}
-            >-</button
-          >
-          <!-- calculates white boxes -->
-          <div class="flex wrap">
-            {#each Array(numSlots + Math.max(0, cd.deltas[spellLevelIndex])) as _, slotLevelIndex}
-              <div
-                class={calculateBoxColor(
-                  numSlots,
-                  spellLevelIndex,
-                  slotLevelIndex,
-                  cd.deltas,
-                )}
-                use:draggable={spellLevelIndex}
-                transition:fly={{ duration: 100, x: -10 }}
-              ></div>
-            {/each}
-          </div>
-          <button
-            onclick={() => incrementSpellSlot(spellLevelIndex)}
-            transition:fly={{ duration: 100, x: -10 }}>+</button
-          >
-        </div>
-      {/each}
-    </div>
-  </section>
-
-  <!-- sorcery points -->
-  <section>
-    <div
-      class={"flex fade " + (hoverTarget === 0 ? "droppable" : "dropping")}
-      use:dropzone
-    >
-      <h2 class="sp-offset">SP</h2>
-      <button
-        onclick={() => incrementSp(-1)}
-        transition:fly={{ duration: 100, x: -10 }}>-</button
-      >
-      <!-- calculates white boxes -->
-      <div class="flex wrap">
-        {#each Array(cd.sps).fill(0) as _}
+  {#if cd.showSpells}
+    <!-- spell slots -->
+    <section>
+      <div>
+        {#each spellTable[cd.level - 1] as numSlots, spellLevelIndex}
           <div
-            class="box white"
-            use:draggable
-            transition:fly={{ duration: 100, x: -10 }}
-          ></div>
+            class={"flex fade spellRow " +
+              (hoverTarget === spellLevelIndex + 1 ? "droppable" : "dropping")}
+            use:dropzone={spellLevelIndex}
+          >
+            <h2>{spellLevelIndex + 1}</h2>
+            <button onclick={() => incrementSpellSlot(spellLevelIndex, -1)}
+              >-</button
+            >
+            <!-- calculates white boxes -->
+            <div class="flex wrap">
+              {#each Array(numSlots + Math.max(0, cd.deltas[spellLevelIndex])) as _, slotLevelIndex}
+                <div
+                  class={calculateBoxColor(
+                    numSlots,
+                    spellLevelIndex,
+                    slotLevelIndex,
+                    cd.deltas,
+                  )}
+                  use:draggable={spellLevelIndex}
+                  transition:fly={{ duration: 100, x: -10 }}
+                ></div>
+              {/each}
+            </div>
+            <button
+              onclick={() => incrementSpellSlot(spellLevelIndex)}
+              transition:fly={{ duration: 100, x: -10 }}>+</button
+            >
+          </div>
         {/each}
       </div>
-      <button
-        onclick={() => incrementSp(1)}
-        transition:fly={{ duration: 100, x: -10 }}>+</button
+    </section>
+  {/if}
+
+  {#if cd.showSps}
+    <!-- sorcery points -->
+    <section>
+      <div
+        class={"flex fade " + (hoverTarget === 0 ? "droppable" : "dropping")}
+        use:dropzone
       >
-    </div>
-  </section>
+        <h2 class="sp-offset">SP</h2>
+        <button
+          onclick={() => incrementSp(-1)}
+          transition:fly={{ duration: 100, x: -10 }}>-</button
+        >
+        <!-- calculates white boxes -->
+        <div class="flex wrap">
+          {#each Array(cd.sps).fill(0) as _}
+            <div
+              class="box white"
+              use:draggable
+              transition:fly={{ duration: 100, x: -10 }}
+            ></div>
+          {/each}
+        </div>
+        <button
+          onclick={() => incrementSp(1)}
+          transition:fly={{ duration: 100, x: -10 }}>+</button
+        >
+      </div>
+    </section>
+  {/if}
 </main>
 
 <!-- once per days -->
@@ -243,6 +247,7 @@
   >
 </section>
 
+<Settings bind:playerData={cd} {spellTable} {save} />
 
 <style>
   h2 {
@@ -262,8 +267,6 @@
     min-width: 200px;
     text-decoration: none;
     padding: 4px;
-    padding-left: 12px;
-    padding-right: 8px;
     border: none;
     font-size: 1em;
     box-shadow: none;

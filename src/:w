@@ -47,11 +47,11 @@
     <input type="number" bind:value={cd.maxHealth} onchange={save} />
     </label>
     <label>
-      Spells
+      Show Spells
       <input bind:checked={cd.showSpells} type="checkbox">
     </label>
     <label>
-      Sorcery
+      Show Sorc
       <input bind:checked={cd.showSps} type="checkbox">
     </label>
     <button class="open" onclick={() => (open = !open)}> close </button>
@@ -69,7 +69,7 @@
     width: 100%;
   }
   input[type=checkbox] {
-    width: 200px;
+    text-align: left;
   }
   input {
     height: 25px;

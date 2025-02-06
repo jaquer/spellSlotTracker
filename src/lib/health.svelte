@@ -74,18 +74,22 @@
 <style>
   h1{
     padding: 5px 5px 10px;
-    margin: 0;
+    margin: 0 0 10px;
   }
   .fw5{
     font-weight: 500;
   }
   .widget {
-    display: flex;
-    flex-direction: column;
-    gap: 40px;
+    margin: 0;
+    width: fit-content;
+    display: block;
+    justify-self: center;
   }
   .widget * {
     margin: 0;
+  }
+  .widget button {
+    width: 289px;
   }
   .keypad {
     display: flex;
@@ -93,7 +97,7 @@
     flex-direction: column;
     justify-content: end;
     background-color: #242424;
-    padding: 0 10vw 30px;
+    padding: 0 10vw 10vh;
     height: 100vh;
     width: 100vw;
   }

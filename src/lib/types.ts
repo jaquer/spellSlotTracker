@@ -5,4 +5,6 @@
     sps: number;
     health: number;
     maxHealth: number;
+    showSpells: boolean;
+    showSps: boolean;
   };
