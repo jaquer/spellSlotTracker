@@ -28,7 +28,14 @@
   const savedData = localStorage.getItem("characterData");
 
   // if the user has local data, parse it to cd. otherwise, make a new player.
-  if (savedData != null) cd = JSON.parse(savedData);
+  if (savedData !== null) {
+  const parsedData = JSON.parse(savedData);
+  for (const key in parsedData) {
+    if (cd.hasOwnProperty(key)) {
+      cd[key as keyof PlayerData] = parsedData[key];
+    }
+  }
+}
 
 
   // spell slot box color. takes in spell info, and returns html classes
