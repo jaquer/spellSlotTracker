@@ -1,24 +1,27 @@
 <script lang="ts">
+  import "drag-drop-touch";
+
   // the spells each level caster gets as a json file
   import spellTable from "./lib/spellTable.json";
   import spConversionTable from "./lib/spConversionTable.json";
+
+  import Health from "./lib/Health.svelte";
+  import type { PlayerData } from "./lib/types";
+
   import { onMount } from "svelte";
-  import "drag-drop-touch";
   import { fly } from "svelte/transition";
+  import Settings from "./lib/settings.svelte";
 
   let hoverTarget: number = $state(-1);
 
   // character data stored as an object
-  let cd: {
-    level: number;
-    deltas: Array<number>;
-    onePerDays: Array<{ name: String; state: boolean }>;
-    sps: number;
-  } = $state({
+  let cd: PlayerData = $state({
     level: 1,
     deltas: [0],
     onePerDays: [],
     sps: 0,
+    health: 1,
+    maxHealth: 1,
   });
 
   // if the user has used this site before, grab the data
@@ -27,10 +30,6 @@
   // if the user has local data, parse it to cd. otherwise, make a new player.
   if (savedData != null) cd = JSON.parse(savedData);
 
-  var levelPicker: HTMLInputElement;
-  onMount(() => {
-    levelPicker.value = cd.level.toString();
-  });
 
   // spell slot box color. takes in spell info, and returns html classes
   function calculateBoxColor(
@@ -64,15 +63,6 @@
     cd.sps += ammt;
     cd.sps = Math.max(cd.sps, 0);
     if (s) save();
-  }
-
-  function upDateSpellLevel(e: any): void {
-    const v = e.target.value;
-    cd.deltas = Array(spellTable[v ? v - 1 : 1].length)
-      .fill(0)
-      .map((_, i) => (i < cd.deltas.length ? cd.deltas[i] : 0));
-    cd.level = v ? v : 1;
-    save();
   }
 
   function draggable(node: HTMLElement, level: number = -1) {
@@ -141,20 +131,11 @@
 </script>
 
 <main>
-  <h1>Spell Slots</h1>
-  <!--level selector-->
-  <section class="flex">
-    <input
-      bind:this={levelPicker}
-      class="box field m0a"
-      type="number"
-      min="1"
-      max={spellTable.length}
-      oninput={(e) => upDateSpellLevel(e)}
-    />
-  </section>
+  <Settings bind:playerData={cd} {spellTable} {save}/>
+  <Health bind:playerData={cd} onSave={save} />
 
   <!-- spell slots -->
+  <h1>Spell Slots</h1>
   <section>
     <div>
       {#each spellTable[cd.level - 1] as numSlots, spellLevelIndex}
@@ -234,6 +215,7 @@
             save();
           }}
         />
+        <!-- svelte-ignore a11y_consider_explicit_label -->
         <button
           class={spell.state ? "box white" : "box"}
           onclick={() => {
@@ -254,6 +236,7 @@
   >
 </section>
 
+
 <style>
   h2 {
     width: 20px;
@@ -263,7 +246,7 @@
     height: 25px;
     background-color: #1a1a1a;
     outline: #1a1a1a 5px solid;
-    border-radius: 3px;
+    border-radius: 10px;
     padding: 0;
     margin: 10px;
     transition: background-color 100ms;
@@ -331,5 +314,8 @@
     border-radius: 10px;
     transition: 300ms;
     padding: 0 10px;
+  }
+  button {
+    border-radius: 10px;
   }
 </style>
