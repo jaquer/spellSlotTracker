@@ -4,7 +4,7 @@
 
   let { playerData = $bindable(), onSave: save}: { playerData: PlayerData, onSave:()=>void } = $props();
   let showKeypad = $state(false);
-  let healthS: string = $state(playerData.health.toString());
+  let healthS: string = $state("0");
 
   function keyPress(n: number | string) {
     if (healthS === "0") healthS = "";
@@ -23,6 +23,32 @@
     if (healthS === "") healthS = "0";
   }
 
+  function increase() {
+    playerData.health += parseInt(healthS);
+    save();
+    healthS = "0";
+    showKeypad = false;
+  }
+  function decrease() {
+    playerData.health -= parseInt(healthS);
+    save();
+    healthS = "0";
+    showKeypad = false;
+  }
+
+  function cancel() {
+    healthS = "0";
+    showKeypad = false;
+  }
+
+  function reset() {
+    healthS = playerData.maxHealth.toString();
+    healthS = "0"
+    playerData.health = playerData.maxHealth;
+    showKeypad = false;
+  }
+
+
 </script>
 
 {#if showKeypad}
@@ -31,7 +57,6 @@
       <h1 class="fw5">
         {healthS}
       </h1>
-
       <span class="flex">
         <button onclick={() => keyPress(1)}> 1 </button>
         <button onclick={() => keyPress(2)}> 2 </button>
@@ -50,16 +75,28 @@
         <button onclick={() => keyPress(9)}> 9 </button>
       </span>
 
+      {#if !playerData.jonMode}
       <span class="flex">
         <button onclick={() => keyPress("-")}> - </button>
         <button onclick={() => keyPress(0)}> 0 </button>
         <button onclick={() => keyPress("+")}> + </button>
       </span>
-
       <span class="flex">
-        <button onclick={backSpace}> Delete </button>
-        <button onclick={() => accept()} class="green"> Accept </button>
+        <button onclick={backSpace}> <img height="15px" src="public/icons/backspace.svg" alt="backspace"> </button>
+        <button onclick={accept} class="green"> Accept </button>
       </span>
+      {:else}
+      <span class="flex">
+        <button onclick={backSpace}> <img height="15px" src="public/icons/backspace.svg" alt="backspace"> </button>
+        <button onclick={() => keyPress(0)}> 0 </button>
+        <button onclick={reset}><img height="15px" src="public/icons/reset.svg" alt="reset"></button>
+      </span>
+      <span class="flex">
+        <button onclick={decrease} class="red"> <img height="30px" src="public/icons/sword.svg" alt="damage"> </button>
+        <button onclick={cancel} class="white"> X </button>
+        <button onclick={increase} class="green"><img height="30px" src="public/icons/potion.svg" alt="healing"></button>
+      </span>
+      {/if}
     </div>
   </span>
 {/if}
@@ -72,6 +109,11 @@
 </div>
 
 <style>
+  img {
+    position: relative;
+    top: 1px;
+    transform: scale(110%);
+  }
   h1{
     padding: 5px 5px 10px;
     margin: 0 0 10px;
@@ -103,6 +145,18 @@
   }
   .green {
     background-color: #40c9a2;
+    color: #1a1a1a;
+  }
+  .red {
+    background-color: #ff6666;
+    color: #1a1a1a;
+  }
+  .white {
+    background-color: #fff1;
+    color: white;
+  }
+  .blue {
+    background-color: #497FD4;
     color: #1a1a1a;
   }
   .keypad button {

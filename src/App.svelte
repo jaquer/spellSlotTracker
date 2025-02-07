@@ -24,6 +24,7 @@
     maxHealth: 1,
     showSpells: true,
     showSps: false,
+    jonMode: false,
   });
 
   // if the user has used this site before, grab the data

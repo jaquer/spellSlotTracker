@@ -7,4 +7,5 @@
     maxHealth: number;
     showSpells: boolean;
     showSps: boolean;
+    jonMode: boolean;
   };

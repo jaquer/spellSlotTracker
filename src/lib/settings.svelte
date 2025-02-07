@@ -16,6 +16,7 @@
   $effect(()=>{
     cd.showSpells;
     cd.showSps;
+    cd.jonMode;
     save()
   })
 
@@ -53,6 +54,10 @@
     <label>
       Sorcery
       <input bind:checked={cd.showSps} type="checkbox">
+    </label>
+    <label>
+      Jon mode 
+      <input bind:checked={cd.jonMode} type="checkbox">
     </label>
     <button class="open" onclick={() => (open = !open)}> close </button>
   {:else}
@@ -98,7 +103,6 @@
     width: 180px;
   }
   label {
-    width: 80vw;
     text-align: right;
   }
 </style>
