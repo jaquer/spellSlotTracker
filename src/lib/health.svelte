@@ -82,14 +82,14 @@
         <button onclick={() => keyPress("+")}> + </button>
       </span>
       <span class="flex">
-        <button onclick={backSpace}> <img height="15px" src="spellSlotTracker/icons/backspace.svg" alt="backspace"> </button>
+        <button onclick={backSpace}> <img height="15px" src="/spellSlotTracker/icons/backspace.svg" alt="backspace"> </button>
         <button onclick={accept} class="green"> Accept </button>
       </span>
       {:else}
       <span class="flex">
-        <button onclick={backSpace}> <img height="15px" src="spellSlotTracker/icons/backspace.svg" alt="backspace"> </button>
+        <button onclick={backSpace}> <img height="15px" src="/spellSlotTracker/icons/backspace.svg" alt="backspace"> </button>
         <button onclick={() => keyPress(0)}> 0 </button>
-        <button onclick={reset}><img height="15px" src="spellSlotTracker/icons/reset.svg" alt="reset"></button>
+        <button onclick={reset}><img height="15px" src="/spellSlotTracker/icons/reset.svg" alt="reset"></button>
       </span>
       <span class="flex">
         <button onclick={decrease} class="red"> <img height="30px" src="/spellSlotTracker/icons/sword.svg" alt="damage"> </button>
