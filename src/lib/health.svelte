@@ -26,26 +26,27 @@
   function increase() {
     playerData.health += parseInt(healthS);
     save();
-    healthS = "0";
     showKeypad = false;
   }
   function decrease() {
     playerData.health -= parseInt(healthS);
     save();
-    healthS = "0";
     showKeypad = false;
   }
 
   function cancel() {
-    healthS = "0";
     showKeypad = false;
   }
 
   function reset() {
     healthS = playerData.maxHealth.toString();
-    healthS = "0"
     playerData.health = playerData.maxHealth;
     showKeypad = false;
+  }
+
+  function edit() {
+    healthS = playerData.jonMode ? "0" : playerData.health.toString();
+    showKeypad = true;
   }
 
 
@@ -102,7 +103,7 @@
 {/if}
 
 <div class="widget">
-  <button onclick={() => (showKeypad = true)}>
+  <button onclick={edit}>
   <h1>
     <span class="fw5"> {playerData.health}/{playerData.maxHealth}</span> HP
   </h1></button>
