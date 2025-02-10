@@ -1,4 +1,4 @@
-# manaMinder
+# spellSlotTracker
 tracks spellslots for your dnd games.
 
-https://aldottexe.github.io/manaMinder/
+https://aldottexe.github.io/spellSlotTracker/
