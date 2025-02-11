@@ -240,6 +240,7 @@
   </div>
   <button
     class="m0a"
+    style="margin-top: 15px"
     onclick={() => {
       cd.onePerDays.push({ name: "Spell", state: true });
       cd.onePerDays = cd.onePerDays;
