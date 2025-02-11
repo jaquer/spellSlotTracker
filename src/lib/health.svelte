@@ -49,6 +49,16 @@
     showKeypad = true;
   }
 
+  let healthColor:string = $derived(
+    playerData.health > playerData.maxHealth ?
+      "tGreen" : 
+    playerData.health < playerData.maxHealth / 4 ? 
+      "tRed" :
+    playerData.health < playerData.maxHealth / 2 ?
+      "tYellow" :
+    ""
+  )
+
 
 </script>
 
@@ -105,7 +115,7 @@
 <div class="widget">
   <button onclick={edit}>
   <h1>
-    <span class="fw5"> {playerData.health}/{playerData.maxHealth}</span> HP
+    <span class="fw5 {healthColor}"> {playerData.health}/{playerData.maxHealth}</span> HP
   </h1></button>
 </div>
 
@@ -159,6 +169,15 @@
   .blue {
     background-color: #497FD4;
     color: #1a1a1a;
+  }
+  .tRed {
+    color: #ff6666;
+  }
+  .tYellow {
+    color: #ffa630;
+  }
+  .tGreen {
+    color: #40c9a2;
   }
   .keypad button {
     width: 100%;
