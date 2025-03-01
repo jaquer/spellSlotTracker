@@ -1,7 +1,7 @@
   export interface PlayerData {
     level: number;
     deltas: Array<number>;
-    onePerDays: Array<{ name: String; state: boolean }>;
+    onePerDays: Array<{ name: String; count: number }>;
     sps: number;
     health: number;
     maxHealth: number;

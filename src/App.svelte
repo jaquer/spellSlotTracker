@@ -233,14 +233,23 @@
             save();
           }}
         />
-        <!-- svelte-ignore a11y_consider_explicit_label -->
         <button
-          class={spell.state ? "box white" : "box"}
           onclick={() => {
-            spell.state = !spell.state;
+            spell.count = Math.max(spell.count - 1, 0);
             save();
           }}
-        ></button>
+        >-</button>
+        <div class="flex wrap">
+          {#each Array(spell.count).fill(0) as _}
+            <div class="box white"></div>
+          {/each}
+        </div>
+        <button
+          onclick={() => {
+            spell.count += 1;
+            save();
+          }}
+        >+</button>
       </div>
     {/each}
   </div>
@@ -248,10 +257,10 @@
     class="m0a"
     style="margin-top: 15px"
     onclick={() => {
-      cd.onePerDays.push({ name: "Spell", state: true });
+      cd.onePerDays.push({ name: "Spell", count: 1 });
       cd.onePerDays = cd.onePerDays;
       save();
-    }}>Add a once-per-day</button
+    }}>Add a times-per-day</button
   >
 </section>
 
