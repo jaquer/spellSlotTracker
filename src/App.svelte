@@ -16,6 +16,7 @@
 
   // character data stored as an object
   let cd: PlayerData = $state({
+    name: "",
     level: 1,
     deltas: [0],
     onePerDays: [],
@@ -141,6 +142,18 @@
 </script>
 
 <main>
+  <section>
+    <div>
+      <input
+        type="text"
+        class="m0a box field character-name-input"
+        bind:value={cd.name}
+        placeholder="Character Name"
+        onblur={save}
+      />
+    </div>
+  </section>
+
   <Health bind:playerData={cd} onSave={save} />
 
   {#if cd.showSpells}
@@ -293,6 +306,14 @@
   .field:focus {
     box-shadow: none;
     text-decoration: none;
+  }
+  .box.character-name-input {
+    font-size: 2em;
+    text-align: center;
+    box-sizing: border-box;
+    height: auto;
+    width: 100%;
+    margin-top: 40px;
   }
   .white {
     background-color: white;

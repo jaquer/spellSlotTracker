@@ -1,4 +1,5 @@
   export interface PlayerData {
+    name: string;
     level: number;
     deltas: Array<number>;
     onePerDays: Array<{ name: String; count: number }>;
