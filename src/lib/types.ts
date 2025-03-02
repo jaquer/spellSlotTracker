@@ -6,6 +6,7 @@
     sps: number;
     health: number;
     maxHealth: number;
+    showHealth: boolean;
     showSpells: boolean;
     showSps: boolean;
     jonMode: boolean;

@@ -23,6 +23,7 @@
     sps: 0,
     health: 1,
     maxHealth: 1,
+    showHealth: true,
     showSpells: true,
     showSps: false,
     jonMode: false,
@@ -154,7 +155,9 @@
     </div>
   </section>
 
-  <Health bind:playerData={cd} onSave={save} />
+  {#if cd.showHealth}
+    <Health bind:playerData={cd} onSave={save} />
+  {/if}
 
   {#if cd.showSpells}
     <!-- spell slots -->

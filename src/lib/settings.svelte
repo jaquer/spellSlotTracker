@@ -43,9 +43,13 @@
         max={spellTable.length}
       />
     </label>
-      <label>
+    <label>
       Max HP
     <input type="number" bind:value={cd.maxHealth} onchange={save} />
+    </label>
+    <label>
+      Show HP
+      <input bind:checked={cd.showHealth} type="checkbox">
     </label>
     <label>
       Spells
